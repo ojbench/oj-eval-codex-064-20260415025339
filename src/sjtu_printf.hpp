@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <ostream>
 #include <iostream>
+#include <tuple>
 
 namespace sjtu {
 
@@ -205,14 +206,21 @@ inline auto printf(format_string_t<Args...> fmt, const Args &...args) -> void {
                     std::cout << std::string_view(arg);
                 }
             } else {
-                static_assert(detail::is_string_like_v<T>, "%s requires a string-like type");
+                // compile-time validator guarantees correctness; keep fallback
+                detail::format_default(std::cout, arg);
             }
         } else if (c == 'd') {
-            static_assert(std::is_integral_v<T>, "%d requires an integer");
-            detail::format_integral_signed(std::cout, arg);
+            if constexpr (std::is_integral_v<T>) {
+                detail::format_integral_signed(std::cout, arg);
+            } else {
+                detail::format_default(std::cout, arg);
+            }
         } else if (c == 'u') {
-            static_assert(std::is_integral_v<T>, "%u requires an integer");
-            detail::format_integral_unsigned(std::cout, arg);
+            if constexpr (std::is_integral_v<T>) {
+                detail::format_integral_unsigned(std::cout, arg);
+            } else {
+                detail::format_default(std::cout, arg);
+            }
         } else if (c == '_') {
             detail::format_default(std::cout, arg);
         }
