@@ -27,7 +27,7 @@ template <typename... Args>
 struct format_string {
 public:
     // Construct and validate at compile time
-    consteval explicit format_string(const char *fmt) : fmt_(fmt) {
+    consteval format_string(const char *fmt) : fmt_(fmt) {
         validate<Args...>(fmt_);
     }
     constexpr auto get() const noexcept -> std::string_view { return fmt_; }
